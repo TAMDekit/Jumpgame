@@ -1,0 +1,167 @@
+/* Game View Stylesheet (Canvas, HUD, Mobile Touch Controls, Split-screen Overlays) */
+
+#view-game {
+    width: 100%;
+    height: 100%;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#view-game.active {
+    display: flex;
+}
+
+.game-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Game HUD Top Bar */
+.game-hud {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    border-radius: 20px;
+    padding: 8px 16px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.hud-player {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.hud-p1 {
+    color: #f43f5e;
+}
+
+.hud-p2 {
+    color: #0284c7;
+}
+
+.hud-bet {
+    font-size: 11px;
+    font-weight: 600;
+    color: #854d0e;
+    background: #fef9c3;
+    border: 1px solid #fde047;
+    padding: 3px 8px;
+    border-radius: 12px;
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Canvas Container */
+#canvas-container {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    height: 70vh;
+    max-height: 640px;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 16px 36px rgba(244, 63, 94, 0.25), 0 0 0 4px rgba(255, 255, 255, 0.8);
+    background: #0f172a;
+}
+
+#game-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* On-Screen Mobile Touch Controls */
+.touch-controls-container {
+    width: 100%;
+    margin-top: 12px;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.touch-cluster {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(8px);
+    border-radius: 18px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1.5px solid rgba(255, 255, 255, 0.8);
+}
+
+.touch-cluster-title {
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.touch-dpad {
+    display: flex;
+    gap: 6px;
+    width: 100%;
+    justify-content: center;
+}
+
+.touch-btn {
+    flex: 1;
+    min-width: 38px;
+    height: 42px;
+    background: white;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.06);
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: transform 0.05s, background 0.05s;
+}
+
+.touch-btn:active {
+    background: #ffe4e6;
+    transform: scale(0.92);
+}
+
+.touch-btn.item-btn {
+    background: #fef08a;
+    border-color: #facc15;
+}
+
+.touch-btn.jump-btn {
+    background: #dbeafe;
+    border-color: #93c5fd;
+}
+
+/* Key Helper Instructions for Desktop */
+.keyboard-hints {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 8px;
+    background: rgba(255, 255, 255, 0.6);
+    padding: 4px 12px;
+    border-radius: 12px;
+}

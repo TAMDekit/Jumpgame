@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Heart Jump 💖 ศึกกระโดดคู่รัก (2-Player Jumping Battle)</title>
+    <meta name="description" content="เกมกระโดดแข่งขันสำหรับคู่รัก เล่นด้วยกันได้ 2 คนบนจอเดียวกันหรือออนไลน์ผ่านมือถือ/คอม">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💖</text></svg>">
+    
+    <!-- PeerJS CDN for WebRTC Multiplayer -->
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/game.css">
+</head>
+<body>
+    <!-- Floating Background Hearts -->
+    <div class="bg-floating-hearts" id="hearts-container"></div>
+
+    <div id="app">
+        <!-- Top Score & Audio Bar -->
+        <div class="top-bar">
+            <div class="score-badge">
+                🏆 แต้มคู่รัก: <span id="score-p1-val" style="color: #f43f5e">0</span> - <span id="score-p2-val" style="color: #0284c7">0</span>
+            </div>
+            <button id="btn-sound-toggle" class="btn-sound">🔊 เปิดเสียง</button>
+        </div>
+
+        <!-- 1. LOBBY VIEW -->
+        <div id="view-lobby" class="view active">
+            <div class="glass-card">
+                <header class="app-header">
+                    <span class="logo-badge">COUPLE BATTLE 2.0</span>
+                    <h1 class="app-title">HEART JUMP</h1>
+                    <p class="app-subtitle">ศึกกระโดดพิชิตใจ ใครแพ้โดนทำโทษ! 💖</p>
+                </header>
+
+                <div class="mode-grid">
+                    <div class="mode-card" id="btn-mode-local">
+                        <div class="mode-icon">🖥️</div>
+                        <div class="mode-info">
+                            <h3>เล่น 2 คนจอเดียวกัน (Local 2P)</h3>
+                            <p>แชร์คีย์บอร์ดหรือหน้าจอมือถือ/ไอแพด แข่งกันข้างๆ</p>
+                        </div>
+                    </div>
+
+                    <div class="mode-card" id="btn-mode-online">
+                        <div class="mode-icon">🌐</div>
+                        <div class="mode-info">
+                            <h3>สร้างห้องออนไลน์ (Online Room)</h3>
+                            <p>ส่งรหัสห้องให้แฟนเปิดบนมือถือหรือคอมอีกเครื่อง</p>
+                        </div>
+                    </div>
+
+                    <div class="mode-card" id="btn-mode-solo">
+                        <div class="mode-icon">🤖</div>
+                        <div class="mode-info">
+                            <h3>โหมดฝึกซ้อม (Solo VS Bot)</h3>
+                            <p>ซ้อมมือก่อนไปท้าแฟนตัวจริง!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px; text-align: center;">
+                    <button id="btn-reset-scores" class="btn-secondary btn-small" style="margin: 0 auto;">🔄 รีเซ็ตประวัติคะแนนสะสม</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. CUSTOMIZE & LOVE BET VIEW -->
+        <div id="view-customize" class="view">
+            <div class="glass-card">
+                <header class="app-header" style="margin-bottom: 12px;">
+                    <h2 class="app-title" style="font-size: 24px;">ปรับแต่งตัวละคร & เดิมพัน</h2>
+                    <p class="app-subtitle">เลือกน้องสัตว์และของรางวัลคนชนะ!</p>
+                </header>
+
+                <div class="custom-grid">
+                    <!-- Player 1 Customizer -->
+                    <div class="player-custom-card">
+                        <span style="font-size: 13px; font-weight: 700; color: #f43f5e;">💖 ผู้เล่นที่ 1</span>
+                        <input type="text" id="p1-name" class="custom-input" value="ที่รัก (P1)" maxlength="12">
+                        <canvas id="p1-preview" class="avatar-preview-canvas" width="100" height="100"></canvas>
+                        
+                        <!-- Species Select -->
+                        <div class="selector-row">
+                            <button class="choice-btn p1-species-btn selected" data-species="bunny">🐰</button>
+                            <button class="choice-btn p1-species-btn" data-species="cat">🐱</button>
+                            <button class="choice-btn p1-species-btn" data-species="bear">🐻</button>
+                            <button class="choice-btn p1-species-btn" data-species="shiba">🐶</button>
+                            <button class="choice-btn p1-species-btn" data-species="penguin">🐧</button>
+                        </div>
+
+                        <!-- Color Select -->
+                        <div class="selector-row">
+                            <div class="color-dot p1-color-btn selected" data-color="#f43f5e" style="background: #f43f5e"></div>
+                            <div class="color-dot p1-color-btn" data-color="#ec4899" style="background: #ec4899"></div>
+                            <div class="color-dot p1-color-btn" data-color="#fb7185" style="background: #fb7185"></div>
+                            <div class="color-dot p1-color-btn" data-color="#fbbf24" style="background: #fbbf24"></div>
+                            <div class="color-dot p1-color-btn" data-color="#38bdf8" style="background: #38bdf8"></div>
+                        </div>
+
+                        <!-- Accessory Select -->
+                        <div class="selector-row">
+                            <button class="choice-btn p1-acc-btn selected" data-acc="bow">🎀</button>
+                            <button class="choice-btn p1-acc-btn" data-acc="crown">👑</button>
+                            <button class="choice-btn p1-acc-btn" data-acc="glasses">🕶️</button>
+                            <button class="choice-btn p1-acc-btn" data-acc="wings">🪽</button>
+                            <button class="choice-btn p1-acc-btn" data-acc="flower">🌸</button>
+                        </div>
+                    </div>
+
+                    <!-- Player 2 Customizer -->
+                    <div class="player-custom-card p2-card" id="custom-p2-section">
+                        <span style="font-size: 13px; font-weight: 700; color: #0284c7;">💙 ผู้เล่นที่ 2</span>
+                        <input type="text" id="p2-name" class="custom-input" value="แฟนสุดหล่อ (P2)" maxlength="12">
+                        <canvas id="p2-preview" class="avatar-preview-canvas" width="100" height="100"></canvas>
+                        
+                        <!-- Species Select -->
+                        <div class="selector-row">
+                            <button class="choice-btn p2-species-btn" data-species="bunny">🐰</button>
+                            <button class="choice-btn p2-species-btn selected" data-species="cat">🐱</button>
+                            <button class="choice-btn p2-species-btn" data-species="bear">🐻</button>
+                            <button class="choice-btn p2-species-btn" data-species="shiba">🐶</button>
+                            <button class="choice-btn p2-species-btn" data-species="penguin">🐧</button>
+                        </div>
+
+                        <!-- Color Select -->
+                        <div class="selector-row">
+                            <div class="color-dot p2-color-btn" data-color="#f43f5e" style="background: #f43f5e"></div>
+                            <div class="color-dot p2-color-btn" data-color="#a855f7" style="background: #a855f7"></div>
+                            <div class="color-dot p2-color-btn selected" data-color="#38bdf8" style="background: #38bdf8"></div>
+                            <div class="color-dot p2-color-btn" data-color="#34d399" style="background: #34d399"></div>
+                            <div class="color-dot p2-color-btn" data-color="#fb923c" style="background: #fb923c"></div>
+                        </div>
+
+                        <!-- Accessory Select -->
+                        <div class="selector-row">
+                            <button class="choice-btn p2-acc-btn" data-acc="bow">🎀</button>
+                            <button class="choice-btn p2-acc-btn" data-acc="crown">👑</button>
+                            <button class="choice-btn p2-acc-btn selected" data-acc="glasses">🕶️</button>
+                            <button class="choice-btn p2-acc-btn" data-acc="wings">🪽</button>
+                            <button class="choice-btn p2-acc-btn" data-acc="flower">🌸</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Love Bet Picker -->
+                <div class="bet-section">
+                    <h4>💌 บทลงโทษ & เดิมพันของคู่รัก:</h4>
+                    <div class="bet-chips">
+                        <div class="bet-chip selected" data-bet="คนแพ้ต้องเลี้ยงชาบู! 🍲">🍲 เลี้ยงชาบู</div>
+                        <div class="bet-chip" data-bet="คนแพ้ต้องนวดให้ 15 นาที 💆‍♂️">💆‍♂️ นวดให้ 15 นาที</div>
+                        <div class="bet-chip" data-bet="คนแพ้ต้องล้างจาน 3 วัน 🧼">🧼 ล้างจาน 3 วัน</div>
+                        <div class="bet-chip" data-bet="คนแพ้ต้องทำตามสั่ง 1 ข้อ 📜">📜 ทำตามสั่ง 1 ข้อ</div>
+                        <div class="bet-chip" data-bet="custom">✏️ ตั้งเอง...</div>
+                    </div>
+                    <input type="text" id="custom-bet-input" class="custom-input" placeholder="พิมพ์ข้อความเดิมพันที่นี่..." style="display: none; margin-top: 8px;">
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button id="btn-back-lobby" class="btn-secondary">ย้อนกลับ</button>
+                    <button id="btn-start-game" class="btn-primary">🔥 เริ่มแข่งเลย!</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. ONLINE ROOM VIEW -->
+        <div id="view-room" class="view">
+            <div class="glass-card">
+                <header class="app-header">
+                    <h2 class="app-title" style="font-size: 26px;">ห้องแข่งขันออนไลน์</h2>
+                    <p class="app-subtitle">เล่นข้ามเครื่องด้วย WebRTC Real-time</p>
+                </header>
+
+                <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px;">
+                    <button id="btn-create-room" class="btn-primary">🏠 สร้างห้องใหม่ (Host)</button>
+
+                    <div id="host-section" style="display: none; background: #fff1f2; padding: 14px; border-radius: 16px; text-align: center; border: 2px dashed #f43f5e;">
+                        <p style="font-size: 13px; font-weight: 600; color: #9f1239;">ส่งรหัสห้องนี้ให้แฟนกรอก:</p>
+                        <h2 id="my-room-code" style="font-size: 28px; letter-spacing: 2px; color: #e11d48; margin: 6px 0;">LOVE-0000</h2>
+                        <p style="font-size: 12px; color: #881337;">⏳ กำลังรอแฟนเชื่อมต่อเข้ามา...</p>
+                    </div>
+
+                    <div style="text-align: center; font-size: 13px; color: var(--text-muted); font-weight: 700;">— หรือ —</div>
+
+                    <div id="join-section" style="background: #f0f9ff; padding: 14px; border-radius: 16px; border: 2px solid #bae6fd;">
+                        <p style="font-size: 13px; font-weight: 600; color: #0369a1; margin-bottom: 8px;">กรอกรหัสห้องของแฟน:</p>
+                        <input type="text" id="join-room-code" class="custom-input" placeholder="เช่น LOVE-1234" style="text-transform: uppercase;">
+                        <button id="btn-join-room" class="btn-secondary" style="background: #38bdf8; color: white; border: none;">🔗 เข้าร่วมห้อง</button>
+                        <p id="join-status" style="font-size: 12px; text-align: center; margin-top: 6px; color: #0284c7; font-weight: 600;"></p>
+                    </div>
+                </div>
+
+                <button id="btn-room-back" class="btn-secondary">ย้อนกลับ</button>
+            </div>
+        </div>
+
+        <!-- 4. GAMEPLAY VIEW -->
+        <div id="view-game" class="view">
+            <div class="game-wrapper">
+                <div class="game-hud">
+                    <div class="hud-player hud-p1">💖 <span id="hud-p1-name">P1</span></div>
+                    <div class="hud-bet" id="hud-bet-text">เดิมพัน: เลี้ยงชาบู!</div>
+                    <div class="hud-player hud-p2">💙 <span id="hud-p2-name">P2</span></div>
+                </div>
+
+                <div id="canvas-container">
+                    <canvas id="game-canvas"></canvas>
+                </div>
+
+                <!-- On-screen Touch Controls for Tablets / Phones -->
+                <div class="touch-controls-container">
+                    <!-- P1 Left Controls -->
+                    <div class="touch-cluster">
+                        <div class="touch-cluster-title" style="color: #f43f5e;">P1 Controls (WASD)</div>
+                        <div class="touch-dpad">
+                            <button id="btn-touch-p1-left" class="touch-btn">◀</button>
+                            <button id="btn-touch-p1-jump" class="touch-btn jump-btn">⬆</button>
+                            <button id="btn-touch-p1-right" class="touch-btn">▶</button>
+                            <button id="btn-touch-p1-item" class="touch-btn item-btn">🎁</button>
+                        </div>
+                    </div>
+
+                    <!-- P2 Right Controls -->
+                    <div class="touch-cluster">
+                        <div class="touch-cluster-title" style="color: #0284c7;">P2 Controls (Arrows)</div>
+                        <div class="touch-dpad">
+                            <button id="btn-touch-p2-left" class="touch-btn">◀</button>
+                            <button id="btn-touch-p2-jump" class="touch-btn jump-btn">⬆</button>
+                            <button id="btn-touch-p2-right" class="touch-btn">▶</button>
+                            <button id="btn-touch-p2-item" class="touch-btn item-btn">🎁</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="keyboard-hints">
+                    ⌨️ <b>คีย์บอร์ด</b>: P1 [A/D เดิน, W สองเด้ง, Space ใช้ไอเทม] | P2 [◀/▶ เดิน, ⬆ สองเด้ง, Enter ใช้ไอเทม]
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. RESULT & VICTORY PODIUM VIEW -->
+        <div id="view-result" class="view">
+            <div class="glass-card result-card">
+                <div class="result-trophy">🏆</div>
+                <h2 class="result-winner" id="result-winner-name">ที่รัก ชนะ! 👑</h2>
+                <p class="result-loser" id="result-loser-name">ขอแสดงความเสียใจด้วยนะจ๊ะ</p>
+
+                <div class="result-bet-box" id="result-bet-action">
+                    📜 บทลงโทษ: คนแพ้ต้องเลี้ยงชาบู! 🍲
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <button id="btn-play-again" class="btn-primary">🔥 แข่งใหม่อีกตา (Rematch)</button>
+                    <button id="btn-result-lobby" class="btn-secondary">🏠 กลับหน้าหลัก</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Background Hearts Generator Script -->
+    <script>
+        const heartsContainer = document.getElementById('hearts-container');
+        const heartIcons = ['💖', '💕', '💗', '💓', '✨', '🌸', '🐰', '🐱'];
+        for (let i = 0; i < 15; i++) {
+            const h = document.createElement('div');
+            h.className = 'floating-heart';
+            h.innerText = heartIcons[Math.floor(Math.random() * heartIcons.length)];
+            h.style.left = Math.random() * 100 + '%';
+            h.style.animationDelay = Math.random() * 8 + 's';
+            h.style.animationDuration = (6 + Math.random() * 6) + 's';
+            heartsContainer.appendChild(h);
+        }
+    </script>
+
+    <!-- Game Scripts -->
+    <script src="js/audio.js"></script>
+    <script src="js/particle.js"></script>
+    <script src="js/character.js"></script>
+    <script src="js/physics.js"></script>
+    <script src="js/network.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
